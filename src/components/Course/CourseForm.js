@@ -6,13 +6,13 @@ const Form = styled.form`
   margin-bottom: 20px;
 `;
 
-const Select = styled.select`
+const Input = styled.input`
   margin-right: 10px;
   padding: 5px;
   font-size: 1em;
 `;
 
-const Input = styled.input`
+const TextArea = styled.textarea`
   margin-right: 10px;
   padding: 5px;
   font-size: 1em;
@@ -31,33 +31,27 @@ const Button = styled.button`
   }
 `;
 
-const ContentForm = ({ courseId, moduleId, fetchCourses }) => {
-  const [type, setType] = useState('text');
-  const [value, setValue] = useState('');
+const CourseForm = ({ fetchCourses }) => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const courses = loadFromLocalStorage('courses');
-    const course = courses.find(course => course.id === courseId);
-    const module = course.modules.find(module => module.id === moduleId);
-    const newContent = { id: Date.now(), type, value };
-    module.contents.push(newContent);
-    saveToLocalStorage('courses', courses);
+    const courses = loadFromLocalStorage('courses') || [];
+    const newCourse = { id: Date.now(), title, description, modules: [] };
+    saveToLocalStorage('courses', [...courses, newCourse]);
     fetchCourses();
+    setTitle('');
+    setDescription('');
   };
 
   return (
     <Form onSubmit={handleSubmit}>
-      <Select value={type} onChange={(e) => setType(e.target.value)}>
-        <option value="text">Text</option>
-        <option value="link">Link</option>
-        <option value="image">Image</option>
-        <option value="pdf">PDF</option>
-      </Select>
-      <Input type={type === 'text' ? 'text' : 'url'} value={value} onChange={(e) => setValue(e.target.value)} placeholder="Content" />
-      <Button type="submit">Add Content</Button>
+      <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Course Title" />
+      <TextArea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Course Description" />
+      <Button type="submit">Create Course</Button>
     </Form>
   );
 };
 
-export default ContentForm;
+export default CourseForm;
